@@ -2,22 +2,13 @@
 
 namespace NCalc
 {
-    internal class SyntaxError<T>
+    internal class SyntaxError<T>(T offendingSymbol, int line, int charPositionInLine, string message, RecognitionException exception)
     {
-        public T OffendingSymbol;
-        public int Line;
-        public int CharPositionInLine;
-        public string Message;
-        public RecognitionException Exception;
-
-        public SyntaxError(T offendingSymbol, int line, int charPositionInLine, string message, RecognitionException exception)
-        {
-            OffendingSymbol = offendingSymbol;
-            Line = line;
-            CharPositionInLine = charPositionInLine;
-            Message = message;
-            Exception = exception;
-        }
+        public T OffendingSymbol = offendingSymbol;
+        public int Line = line;
+        public int CharPositionInLine = charPositionInLine;
+        public string Message = message;
+        public RecognitionException Exception = exception;
 
         public override string ToString() => $"{Message}:{Line}:{CharPositionInLine}";
     }

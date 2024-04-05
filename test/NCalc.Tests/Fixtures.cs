@@ -1,11 +1,11 @@
-﻿using FluentAssertions;
-using NCalc.Domain;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using FluentAssertions;
+using NCalc.Domain;
 using Xunit;
 using Xunit.Abstractions;
 

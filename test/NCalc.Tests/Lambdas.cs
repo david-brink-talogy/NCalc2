@@ -406,7 +406,7 @@ namespace NCalc.Tests
 
         internal struct FooStruct
         {
-            public double Foo => 2.2;
+            public readonly double Foo => 2.2;
         }
     }
 }

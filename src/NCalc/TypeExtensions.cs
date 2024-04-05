@@ -5,8 +5,8 @@ namespace System
 {
     public static class TypeExtensions
     {
-        private static readonly Dictionary<Type, TypeCode> TypeCodeMap =
-            new Dictionary<Type, TypeCode>
+        private static readonly Dictionary<Type, TypeCode> _typeCodeMap =
+            new()
             {
                 {typeof(bool), TypeCode.Boolean},
                 {typeof(byte), TypeCode.Byte},
@@ -37,7 +37,7 @@ namespace System
             if (type == null)
                 return TypeCode.Empty;
 
-            if (!TypeCodeMap.TryGetValue(type, out TypeCode tc))
+            if (!_typeCodeMap.TryGetValue(type, out TypeCode tc))
             {
                 tc = TypeCode.Object;
             }

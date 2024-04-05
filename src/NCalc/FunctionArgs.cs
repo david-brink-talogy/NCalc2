@@ -18,7 +18,7 @@ namespace NCalc
 
         public bool HasResult { get; set; }
 
-        private Expression[] _parameters = new Expression[0];
+        private Expression[] _parameters = [];
 
         public Expression[] Parameters
         {

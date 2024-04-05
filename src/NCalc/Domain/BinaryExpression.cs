@@ -1,19 +1,12 @@
 namespace NCalc.Domain
 {
-    public class BinaryExpression : LogicalExpression
+    public class BinaryExpression(BinaryExpressionType type, LogicalExpression leftExpression, LogicalExpression rightExpression) : LogicalExpression
     {
-        public BinaryExpression(BinaryExpressionType type, LogicalExpression leftExpression, LogicalExpression rightExpression)
-        {
-            Type = type;
-            LeftExpression = leftExpression;
-            RightExpression = rightExpression;
-        }
+        public LogicalExpression LeftExpression { get; set; } = leftExpression;
 
-        public LogicalExpression LeftExpression { get; set; }
+        public LogicalExpression RightExpression { get; set; } = rightExpression;
 
-        public LogicalExpression RightExpression { get; set; }
-
-        public BinaryExpressionType Type { get; set; }
+        public BinaryExpressionType Type { get; set; } = type;
 
         public override void Accept(LogicalExpressionVisitor visitor)
         {

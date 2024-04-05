@@ -184,7 +184,7 @@ namespace NCalc.Domain
 
         public override string ToString()
         {
-            SerializationVisitor serializer = new SerializationVisitor();
+            SerializationVisitor serializer = new();
             this.Accept(serializer);
 
             return serializer.Result.ToString().TrimEnd(' ');

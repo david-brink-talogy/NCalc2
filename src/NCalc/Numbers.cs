@@ -505,18 +505,6 @@ namespace NCalc
             }
         }
 
-        [Obsolete("This method will be removed in the next major update. Use Subtract method instead")]
-        public static object Soustract(object a, object b, EvaluateOptions options)
-        {
-            return Subtract(a, b, options, CultureInfo.CurrentCulture);
-        }
-
-        [Obsolete("This method will be removed in the next major update. Use Subtract method instead")]
-        public static object Soustract(object a, object b, EvaluateOptions options, CultureInfo cultureInfo)
-        {
-            return Subtract(a, b, options, cultureInfo);
-        }
-
         public static object Subtract(object a, object b, EvaluateOptions options)
         {
             return Subtract(a, b, options, CultureInfo.CurrentCulture);
@@ -743,18 +731,6 @@ namespace NCalc
             }
 
             return null;
-        }
-
-        [Obsolete("This method will be removed in the next major update. Use SubtractChecked method instead")]
-        public static object SoustractChecked(object a, object b, EvaluateOptions options)
-        {
-            return SubtractChecked(a, b, options, CultureInfo.CurrentCulture);
-        }
-
-        [Obsolete("This method will be removed in the next major update. Use SubtractChecked method instead")]
-        public static object SoustractChecked(object a, object b, EvaluateOptions options, CultureInfo cultureInfo)
-        {
-            return SubtractChecked(a, b, options, cultureInfo);
         }
 
         public static object SubtractChecked(object a, object b, EvaluateOptions options)
@@ -1852,33 +1828,21 @@ namespace NCalc
 
             TypeCode typeCode = ConvertToHighestPrecision(ref a, ref b, cultureInfo);
 
-            switch (typeCode)
+            return typeCode switch
             {
-                case TypeCode.Byte:
-                    return Math.Max((Byte)a, (Byte)b);
-                case TypeCode.SByte:
-                    return Math.Max((SByte)a, (SByte)b);
-                case TypeCode.Int16:
-                    return Math.Max((Int16)a, (Int16)b);
-                case TypeCode.UInt16:
-                    return Math.Max((UInt16)a, (UInt16)b);
-                case TypeCode.Int32:
-                    return Math.Max((Int32)a, (Int32)b);
-                case TypeCode.UInt32:
-                    return Math.Max((UInt32)a, (UInt32)b);
-                case TypeCode.Int64:
-                    return Math.Max((Int64)a, (Int64)b);
-                case TypeCode.UInt64:
-                    return Math.Max((UInt64)a, (UInt64)b);
-                case TypeCode.Single:
-                    return Math.Max((Single)a, (Single)b);
-                case TypeCode.Double:
-                    return Math.Max((Double)a, (Double)b);
-                case TypeCode.Decimal:
-                    return Math.Max((Decimal)a, (Decimal)b);
-            }
-
-            return null;
+                TypeCode.Byte => Math.Max((Byte)a, (Byte)b),
+                TypeCode.SByte => Math.Max((SByte)a, (SByte)b),
+                TypeCode.Int16 => Math.Max((Int16)a, (Int16)b),
+                TypeCode.UInt16 => Math.Max((UInt16)a, (UInt16)b),
+                TypeCode.Int32 => Math.Max((Int32)a, (Int32)b),
+                TypeCode.UInt32 => Math.Max((UInt32)a, (UInt32)b),
+                TypeCode.Int64 => Math.Max((Int64)a, (Int64)b),
+                TypeCode.UInt64 => Math.Max((UInt64)a, (UInt64)b),
+                TypeCode.Single => Math.Max((Single)a, (Single)b),
+                TypeCode.Double => Math.Max((Double)a, (Double)b),
+                TypeCode.Decimal => Math.Max((Decimal)a, (Decimal)b),
+                _ => null,
+            };
         }
 
         public static object Min(object a, object b)
@@ -1908,33 +1872,21 @@ namespace NCalc
 
             TypeCode typeCode = ConvertToHighestPrecision(ref a, ref b, cultureInfo);
 
-            switch (typeCode)
+            return typeCode switch
             {
-                case TypeCode.Byte:
-                    return Math.Min((Byte)a, (Byte)b);
-                case TypeCode.SByte:
-                    return Math.Min((SByte)a, (SByte)b);
-                case TypeCode.Int16:
-                    return Math.Min((Int16)a, (Int16)b);
-                case TypeCode.UInt16:
-                    return Math.Min((UInt16)a, (UInt16)b);
-                case TypeCode.Int32:
-                    return Math.Min((Int32)a, (Int32)b);
-                case TypeCode.UInt32:
-                    return Math.Min((UInt32)a, (UInt32)b);
-                case TypeCode.Int64:
-                    return Math.Min((Int64)a, (Int64)b);
-                case TypeCode.UInt64:
-                    return Math.Min((UInt64)a, (UInt64)b);
-                case TypeCode.Single:
-                    return Math.Min((Single)a, (Single)b);
-                case TypeCode.Double:
-                    return Math.Min((Double)a, (Double)b);
-                case TypeCode.Decimal:
-                    return Math.Min((Decimal)a, (Decimal)b);
-            }
-
-            return null;
+                TypeCode.Byte => Math.Min((Byte)a, (Byte)b),
+                TypeCode.SByte => Math.Min((SByte)a, (SByte)b),
+                TypeCode.Int16 => Math.Min((Int16)a, (Int16)b),
+                TypeCode.UInt16 => Math.Min((UInt16)a, (UInt16)b),
+                TypeCode.Int32 => Math.Min((Int32)a, (Int32)b),
+                TypeCode.UInt32 => Math.Min((UInt32)a, (UInt32)b),
+                TypeCode.Int64 => Math.Min((Int64)a, (Int64)b),
+                TypeCode.UInt64 => Math.Min((UInt64)a, (UInt64)b),
+                TypeCode.Single => Math.Min((Single)a, (Single)b),
+                TypeCode.Double => Math.Min((Double)a, (Double)b),
+                TypeCode.Decimal => Math.Min((Decimal)a, (Decimal)b),
+                _ => null,
+            };
         }
 
         private static TypeCode ConvertToHighestPrecision(ref object a, ref object b, CultureInfo cultureInfo)
@@ -1945,9 +1897,9 @@ namespace NCalc
             if (typeCodeA == typeCodeB)
                 return typeCodeA;
 
-            if (!(TypeCodeBitSize(typeCodeA, out bool floatingPointA) is int bitSizeA))
+            if ((TypeCodeBitSize(typeCodeA, out bool floatingPointA) is not int bitSizeA))
                 return TypeCode.Empty;
-            if (!(TypeCodeBitSize(typeCodeB, out bool floatingPointB) is int bitSizeB))
+            if ((TypeCodeBitSize(typeCodeB, out bool floatingPointB) is not int bitSizeB))
                 return TypeCode.Empty;
 
             if (floatingPointA != floatingPointB)
@@ -2009,43 +1961,21 @@ namespace NCalc
 
         private static object ConvertTo(object value, TypeCode toType, CultureInfo cultureInfo)
         {
-            switch (toType)
+            return toType switch
             {
-                case TypeCode.Byte:
-                    return Convert.ToByte(value, cultureInfo);
-
-                case TypeCode.SByte:
-                    return Convert.ToSByte(value, cultureInfo);
-
-                case TypeCode.Int16:
-                    return Convert.ToInt16(value, cultureInfo);
-
-                case TypeCode.UInt16:
-                    return Convert.ToUInt16(value, cultureInfo);
-
-                case TypeCode.Int32:
-                    return Convert.ToInt32(value, cultureInfo);
-
-                case TypeCode.UInt32:
-                    return Convert.ToUInt32(value, cultureInfo);
-
-                case TypeCode.Int64:
-                    return Convert.ToInt64(value, cultureInfo);
-
-                case TypeCode.UInt64:
-                    return Convert.ToUInt64(value, cultureInfo);
-
-                case TypeCode.Single:
-                    return Convert.ToSingle(value, cultureInfo);
-
-                case TypeCode.Double:
-                    return Convert.ToDouble(value, cultureInfo);
-
-                case TypeCode.Decimal:
-                    return Convert.ToDecimal(value, cultureInfo);
-            }
-
-            return null;
+                TypeCode.Byte => Convert.ToByte(value, cultureInfo),
+                TypeCode.SByte => Convert.ToSByte(value, cultureInfo),
+                TypeCode.Int16 => Convert.ToInt16(value, cultureInfo),
+                TypeCode.UInt16 => Convert.ToUInt16(value, cultureInfo),
+                TypeCode.Int32 => Convert.ToInt32(value, cultureInfo),
+                TypeCode.UInt32 => Convert.ToUInt32(value, cultureInfo),
+                TypeCode.Int64 => Convert.ToInt64(value, cultureInfo),
+                TypeCode.UInt64 => Convert.ToUInt64(value, cultureInfo),
+                TypeCode.Single => Convert.ToSingle(value, cultureInfo),
+                TypeCode.Double => Convert.ToDouble(value, cultureInfo),
+                TypeCode.Decimal => Convert.ToDecimal(value, cultureInfo),
+                _ => null,
+            };
         }
     }
 }

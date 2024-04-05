@@ -1,13 +1,13 @@
-﻿using Antlr4.Runtime;
-using Antlr4.Runtime.Atn;
-using Antlr4.Runtime.Misc;
-using NCalc.Domain;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Antlr4.Runtime;
+using Antlr4.Runtime.Atn;
+using Antlr4.Runtime.Misc;
+using NCalc.Domain;
 using L = System.Linq.Expressions;
 
 namespace NCalc
@@ -55,10 +55,7 @@ namespace NCalc
 
         public Expression(LogicalExpression expression, EvaluateOptions options, CultureInfo cultureInfo)
         {
-            if (expression == null)
-                throw new ArgumentException("Expression can't be null", nameof(expression));
-
-            ParsedExpression = expression;
+            ParsedExpression = expression ?? throw new ArgumentException("Expression can't be null", nameof(expression));
             Options = options;
             CultureInfo = cultureInfo;
         }

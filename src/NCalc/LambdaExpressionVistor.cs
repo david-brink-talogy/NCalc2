@@ -1,8 +1,8 @@
-﻿using NCalc.Domain;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using NCalc.Domain;
 using L = System.Linq.Expressions;
 
 namespace NCalc
@@ -10,10 +10,9 @@ namespace NCalc
     internal class LambdaExpressionVistor : LogicalExpressionVisitor
     {
         private readonly IDictionary<string, object> _parameters;
-        private L.Expression _result;
         private readonly L.Expression _context;
         private readonly EvaluateOptions _options = EvaluateOptions.None;
-        private readonly Dictionary<Type, HashSet<Type>> _implicitPrimitiveConversionTable = new Dictionary<Type, HashSet<Type>>() {
+        private readonly Dictionary<Type, HashSet<Type>> _implicitPrimitiveConversionTable = new() {
             { typeof(sbyte), new HashSet<Type> { typeof(short), typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) }},
             { typeof(byte), new HashSet<Type> { typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) }},
             { typeof(short), new HashSet<Type> { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) }},
@@ -42,7 +41,7 @@ namespace NCalc
             _options = options;
         }
 
-        public L.Expression Result => _result;
+        public L.Expression Result { get; private set; }
 
         public override void Visit(LogicalExpression expression)
         {
@@ -52,111 +51,104 @@ namespace NCalc
         public override void Visit(TernaryExpression expression)
         {
             expression.LeftExpression.Accept(this);
-            var test = _result;
+            var test = Result;
 
             expression.MiddleExpression.Accept(this);
-            var ifTrue = _result;
+            var ifTrue = Result;
 
             expression.RightExpression.Accept(this);
-            var ifFalse = _result;
+            var ifFalse = Result;
 
-            _result = L.Expression.Condition(test, ifTrue, ifFalse);
+            Result = L.Expression.Condition(test, ifTrue, ifFalse);
         }
 
         public override void Visit(BinaryExpression expression)
         {
             expression.LeftExpression.Accept(this);
-            var left = _result;
+            var left = Result;
 
             expression.RightExpression.Accept(this);
-            var right = _result;
+            var right = Result;
 
             switch (expression.Type)
             {
                 case BinaryExpressionType.And:
-                    _result = L.Expression.AndAlso(left, right);
+                    Result = L.Expression.AndAlso(left, right);
                     break;
                 case BinaryExpressionType.Or:
-                    _result = L.Expression.OrElse(left, right);
+                    Result = L.Expression.OrElse(left, right);
                     break;
                 case BinaryExpressionType.NotEqual:
-                    _result = WithCommonNumericType(left, right, L.Expression.NotEqual, expression.Type);
+                    Result = WithCommonNumericType(left, right, L.Expression.NotEqual, expression.Type);
                     break;
                 case BinaryExpressionType.LesserOrEqual:
-                    _result = WithCommonNumericType(left, right, L.Expression.LessThanOrEqual, expression.Type);
+                    Result = WithCommonNumericType(left, right, L.Expression.LessThanOrEqual, expression.Type);
                     break;
                 case BinaryExpressionType.GreaterOrEqual:
-                    _result = WithCommonNumericType(left, right, L.Expression.GreaterThanOrEqual, expression.Type);
+                    Result = WithCommonNumericType(left, right, L.Expression.GreaterThanOrEqual, expression.Type);
                     break;
                 case BinaryExpressionType.Lesser:
-                    _result = WithCommonNumericType(left, right, L.Expression.LessThan, expression.Type);
+                    Result = WithCommonNumericType(left, right, L.Expression.LessThan, expression.Type);
                     break;
                 case BinaryExpressionType.Greater:
-                    _result = WithCommonNumericType(left, right, L.Expression.GreaterThan, expression.Type);
+                    Result = WithCommonNumericType(left, right, L.Expression.GreaterThan, expression.Type);
                     break;
                 case BinaryExpressionType.Equal:
-                    _result = WithCommonNumericType(left, right, L.Expression.Equal, expression.Type);
+                    Result = WithCommonNumericType(left, right, L.Expression.Equal, expression.Type);
                     break;
                 case BinaryExpressionType.Minus:
-                    if (Checked) _result = WithCommonNumericType(left, right, L.Expression.SubtractChecked);
-                    else _result = WithCommonNumericType(left, right, L.Expression.Subtract);
+                    if (Checked) Result = WithCommonNumericType(left, right, L.Expression.SubtractChecked);
+                    else Result = WithCommonNumericType(left, right, L.Expression.Subtract);
                     break;
                 case BinaryExpressionType.Plus:
-                    if (Checked) _result = WithCommonNumericType(left, right, L.Expression.AddChecked);
-                    else _result = WithCommonNumericType(left, right, L.Expression.Add);
+                    if (Checked) Result = WithCommonNumericType(left, right, L.Expression.AddChecked);
+                    else Result = WithCommonNumericType(left, right, L.Expression.Add);
                     break;
                 case BinaryExpressionType.Modulo:
-                    _result = WithCommonNumericType(left, right, L.Expression.Modulo);
+                    Result = WithCommonNumericType(left, right, L.Expression.Modulo);
                     break;
                 case BinaryExpressionType.Div:
-                    _result = WithCommonNumericType(left, right, L.Expression.Divide);
+                    Result = WithCommonNumericType(left, right, L.Expression.Divide);
                     break;
                 case BinaryExpressionType.Times:
-                    if (Checked) _result = WithCommonNumericType(left, right, L.Expression.MultiplyChecked);
-                    else _result = WithCommonNumericType(left, right, L.Expression.Multiply);
+                    if (Checked) Result = WithCommonNumericType(left, right, L.Expression.MultiplyChecked);
+                    else Result = WithCommonNumericType(left, right, L.Expression.Multiply);
                     break;
                 case BinaryExpressionType.BitwiseOr:
-                    _result = L.Expression.Or(left, right);
+                    Result = L.Expression.Or(left, right);
                     break;
                 case BinaryExpressionType.BitwiseAnd:
-                    _result = L.Expression.And(left, right);
+                    Result = L.Expression.And(left, right);
                     break;
                 case BinaryExpressionType.BitwiseXOr:
-                    _result = L.Expression.ExclusiveOr(left, right);
+                    Result = L.Expression.ExclusiveOr(left, right);
                     break;
                 case BinaryExpressionType.LeftShift:
-                    _result = L.Expression.LeftShift(left, right);
+                    Result = L.Expression.LeftShift(left, right);
                     break;
                 case BinaryExpressionType.RightShift:
-                    _result = L.Expression.RightShift(left, right);
+                    Result = L.Expression.RightShift(left, right);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new EvaluationException($"Expression of type {expression.Type} is not supported");
             }
         }
 
         public override void Visit(UnaryExpression expression)
         {
             expression.Expression.Accept(this);
-            switch (expression.Type)
+            Result = expression.Type switch
             {
-                case UnaryExpressionType.Not:
-                    _result = L.Expression.Not(_result);
-                    break;
-                case UnaryExpressionType.Negate:
-                    _result = L.Expression.Negate(_result);
-                    break;
-                case UnaryExpressionType.BitwiseNot:
-                    _result = L.Expression.Not(_result);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                UnaryExpressionType.Not => L.Expression.Not(Result),
+                UnaryExpressionType.Negate => L.Expression.Negate(Result),
+                UnaryExpressionType.BitwiseNot => L.Expression.Not(Result),
+                _ => throw new EvaluationException($"Expression of type {expression.Type} is not supported"),
+            };
         }
 
         public override void Visit(ValueExpression expression)
         {
-            _result = L.Expression.Constant(expression.Value);
+            Result = L.Expression.Constant(expression.Value);
         }
 
         public override void Visit(Function function)
@@ -165,7 +157,7 @@ namespace NCalc
             for (int i = 0; i < function.Expressions.Length; i++)
             {
                 function.Expressions[i].Accept(this);
-                args[i] = _result;
+                args[i] = Result;
             }
 
             string functionName = function.Identifier.Name.ToUpperInvariant();
@@ -179,16 +171,16 @@ namespace NCalc
                     args[1] = L.Expression.Convert(args[1], numberTypePriority[Math.Min(index1, index2)]);
                     args[2] = L.Expression.Convert(args[2], numberTypePriority[Math.Min(index1, index2)]);
                 }
-                _result = L.Expression.Condition(args[0], args[1], args[2]);
+                Result = L.Expression.Condition(args[0], args[1], args[2]);
                 return;
             }
             else if (functionName == "IN")
             {
                 var items = L.Expression.NewArrayInit(args[0].Type,
                         new ArraySegment<L.Expression>(args, 1, args.Length - 1));
-                var smi = typeof(Array).GetRuntimeMethod("IndexOf", new[] { typeof(Array), typeof(object) });
+                var smi = typeof(Array).GetRuntimeMethod("IndexOf", [typeof(Array), typeof(object)]);
                 var r = L.Expression.Call(smi, L.Expression.Convert(items, typeof(Array)), L.Expression.Convert(args[0], typeof(object)));
-                _result = L.Expression.GreaterThanOrEqual(r, L.Expression.Constant(0));
+                Result = L.Expression.GreaterThanOrEqual(r, L.Expression.Constant(0));
                 return;
             }
 
@@ -196,7 +188,7 @@ namespace NCalc
             var mi = FindMethod(function.Identifier.Name, args);
             if (mi != null)
             {
-                _result = L.Expression.Call(_context, mi.BaseMethodInfo, mi.PreparedArguments);
+                Result = L.Expression.Call(_context, mi.BaseMethodInfo, mi.PreparedArguments);
                 return;
             }
 
@@ -205,17 +197,17 @@ namespace NCalc
                 case "MIN":
                     var minArg0 = L.Expression.Convert(args[0], typeof(double));
                     var minArg1 = L.Expression.Convert(args[1], typeof(double));
-                    _result = L.Expression.Condition(L.Expression.LessThan(minArg0, minArg1), minArg0, minArg1);
+                    Result = L.Expression.Condition(L.Expression.LessThan(minArg0, minArg1), minArg0, minArg1);
                     break;
                 case "MAX":
                     var maxArg0 = L.Expression.Convert(args[0], typeof(double));
                     var maxArg1 = L.Expression.Convert(args[1], typeof(double));
-                    _result = L.Expression.Condition(L.Expression.GreaterThan(maxArg0, maxArg1), maxArg0, maxArg1);
+                    Result = L.Expression.Condition(L.Expression.GreaterThan(maxArg0, maxArg1), maxArg0, maxArg1);
                     break;
                 case "POW":
                     var powArg0 = L.Expression.Convert(args[0], typeof(double));
                     var powArg1 = L.Expression.Convert(args[1], typeof(double));
-                    _result = L.Expression.Power(powArg0, powArg1);
+                    Result = L.Expression.Power(powArg0, powArg1);
                     break;
                 default:
                     throw new MissingMethodException($"method not found: {functionName}");
@@ -226,11 +218,11 @@ namespace NCalc
         {
             if (_context == null)
             {
-                _result = L.Expression.Constant(_parameters[function.Name]);
+                Result = L.Expression.Constant(_parameters[function.Name]);
             }
             else
             {
-                _result = L.Expression.PropertyOrField(_context, function.Name);
+                Result = L.Expression.PropertyOrField(_context, function.Name);
             }
         }
 
@@ -389,24 +381,24 @@ namespace NCalc
                     right = L.Expression.Convert(right, type);
                 }
             }
-            L.Expression comparer = null;
+            L.Expression comparer;
             if (IgnoreCaseString)
             {
-                if (Ordinal) comparer = L.Expression.Property(null, typeof(StringComparer), "OrdinalIgnoreCase");
-                else comparer = L.Expression.Property(null, typeof(StringComparer), "CurrentCultureIgnoreCase");
+                if (Ordinal) comparer = L.Expression.Property(null, typeof(StringComparer), nameof(StringComparer.OrdinalIgnoreCase));
+                else comparer = L.Expression.Property(null, typeof(StringComparer), nameof(StringComparer.CurrentCultureIgnoreCase));
             }
-            else comparer = L.Expression.Property(null, typeof(StringComparer), "Ordinal");
+            else comparer = L.Expression.Property(null, typeof(StringComparer), nameof(StringComparer.Ordinal));
 
             if (comparer != null && (typeof(string).Equals(left.Type) || typeof(string).Equals(right.Type)))
             {
                 switch (expressiontype)
                 {
-                    case BinaryExpressionType.Equal: return L.Expression.Call(comparer, typeof(StringComparer).GetRuntimeMethod("Equals", new[] { typeof(string), typeof(string) }), new L.Expression[] { left, right });
-                    case BinaryExpressionType.NotEqual: return L.Expression.Not(L.Expression.Call(comparer, typeof(StringComparer).GetRuntimeMethod("Equals", new[] { typeof(string), typeof(string) }), new L.Expression[] { left, right }));
-                    case BinaryExpressionType.GreaterOrEqual: return L.Expression.GreaterThanOrEqual(L.Expression.Call(comparer, typeof(StringComparer).GetRuntimeMethod("Compare", new[] { typeof(string), typeof(string) }), new L.Expression[] { left, right }), L.Expression.Constant(0));
-                    case BinaryExpressionType.LesserOrEqual: return L.Expression.LessThanOrEqual(L.Expression.Call(comparer, typeof(StringComparer).GetRuntimeMethod("Compare", new[] { typeof(string), typeof(string) }), new L.Expression[] { left, right }), L.Expression.Constant(0));
-                    case BinaryExpressionType.Greater: return L.Expression.GreaterThan(L.Expression.Call(comparer, typeof(StringComparer).GetRuntimeMethod("Compare", new[] { typeof(string), typeof(string) }), new L.Expression[] { left, right }), L.Expression.Constant(0));
-                    case BinaryExpressionType.Lesser: return L.Expression.LessThan(L.Expression.Call(comparer, typeof(StringComparer).GetRuntimeMethod("Compare", new[] { typeof(string), typeof(string) }), new L.Expression[] { left, right }), L.Expression.Constant(0));
+                    case BinaryExpressionType.Equal: return L.Expression.Call(comparer, typeof(StringComparer).GetRuntimeMethod("Equals", [typeof(string), typeof(string)]), [left, right]);
+                    case BinaryExpressionType.NotEqual: return L.Expression.Not(L.Expression.Call(comparer, typeof(StringComparer).GetRuntimeMethod("Equals", [typeof(string), typeof(string)]), [left, right]));
+                    case BinaryExpressionType.GreaterOrEqual: return L.Expression.GreaterThanOrEqual(L.Expression.Call(comparer, typeof(StringComparer).GetRuntimeMethod("Compare", [typeof(string), typeof(string)]), [left, right]), L.Expression.Constant(0));
+                    case BinaryExpressionType.LesserOrEqual: return L.Expression.LessThanOrEqual(L.Expression.Call(comparer, typeof(StringComparer).GetRuntimeMethod("Compare", [typeof(string), typeof(string)]), [left, right]), L.Expression.Constant(0));
+                    case BinaryExpressionType.Greater: return L.Expression.GreaterThan(L.Expression.Call(comparer, typeof(StringComparer).GetRuntimeMethod("Compare", [typeof(string), typeof(string)]), [left, right]), L.Expression.Constant(0));
+                    case BinaryExpressionType.Lesser: return L.Expression.LessThan(L.Expression.Call(comparer, typeof(StringComparer).GetRuntimeMethod("Compare", [typeof(string), typeof(string)]), [left, right]), L.Expression.Constant(0));
                 }
             }
             return action(left, right);

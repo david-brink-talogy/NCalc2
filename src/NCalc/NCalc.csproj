@@ -1,11 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+		<LangVersion>latest</LangVersion>
 		<Description>This is a port of NCalc for .NET Core applications.</Description>
 		<AssemblyTitle>CoreCLR-NCalc</AssemblyTitle>
-		<VersionPrefix>3.0.0</VersionPrefix>
+		<VersionPrefix>4.0.0</VersionPrefix>
 		<Authors>Sebastian Klose</Authors>
-		<TargetFrameworks>net45;netstandard2.0;net6.0;net8.0</TargetFrameworks>
+		<TargetFrameworks>net462;netstandard2.0;net6.0;net8.0</TargetFrameworks>
 		<AssemblyName>NCalc</AssemblyName>
 		<PackageId>CoreCLR-NCalc</PackageId>
 		<PackageTags>ncalc;coreclr;expression;evaluator</PackageTags>
@@ -23,13 +24,15 @@
 		<GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageIcon>ncalc.png</PackageIcon>
+		<EnableNETAnalyzers>true</EnableNETAnalyzers>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<None Include="ncalc.png" Pack="true" Visible="false" PackagePath="" />
 	</ItemGroup>	
 	
-	<ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
 		<Reference Include="System" />
 		<Reference Include="Microsoft.CSharp" />
 	</ItemGroup>
@@ -51,7 +54,7 @@
 	</ItemGroup>
 
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-		<Exec Command="antlr4 -Dlanguage=CSharp &quot;../../grammer/NCalc.g&quot; -o &quot;./Generated/&quot;" />
+		<Exec Command="antlr4 -Dlanguage=CSharp &quot;../../grammar/NCalc.g&quot; -o &quot;./Generated/&quot;" />
 	</Target>
 
 	<PropertyGroup>

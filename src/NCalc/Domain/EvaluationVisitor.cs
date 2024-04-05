@@ -43,13 +43,13 @@ namespace NCalc.Domain
             throw new Exception("The method or operation is not implemented.");
         }
 
-        private static readonly Type[] CommonTypes = new[] {
+        private static readonly Type[] _commonTypes = [
             typeof(Int64),
             typeof(Double),
             typeof(Boolean),
             typeof(String),
             typeof(Decimal)
-        };
+        ];
 
         /// <summary>
         /// Gets the the most precise type.
@@ -59,7 +59,7 @@ namespace NCalc.Domain
         /// <returns></returns>
         private static Type GetMostPreciseType(Type a, Type b)
         {
-            foreach (Type t in CommonTypes)
+            foreach (Type t in _commonTypes)
             {
                 if (a == t || b == t)
                 {
@@ -72,7 +72,7 @@ namespace NCalc.Domain
 
         public int CompareUsingMostPreciseType(object a, object b)
         {
-            var allowNull = (_options & EvaluateOptions.AllowNullParameter) == EvaluateOptions.AllowNullParameter;
+            bool allowNull = (_options & EvaluateOptions.AllowNullParameter) == EvaluateOptions.AllowNullParameter;
 
             Type mpt = allowNull ? GetMostPreciseType(a?.GetType(), b?.GetType()) ?? typeof(object) : GetMostPreciseType(a.GetType(), b.GetType());
 
@@ -131,21 +131,21 @@ namespace NCalc.Domain
             // simulate Lazy<Func<>> behavior for late evaluation
             object leftValue = null;
             bool leftEvaluated = false;
-            Func<object> left = () =>
-                                 {
-                                     if (!leftEvaluated)
-                                     {
-                                         expression.LeftExpression.Accept(this);
-                                         leftValue = Result;
-                                         leftEvaluated = true;
-                                     }
-                                     return leftValue;
-                                 };
+            object left()
+            {
+                if (!leftEvaluated)
+                {
+                    expression.LeftExpression.Accept(this);
+                    leftValue = Result;
+                    leftEvaluated = true;
+                }
+                return leftValue;
+            }
 
             // simulate Lazy<Func<>> behavior for late evaluation
             object rightValue = null;
             bool rightEvaluated = false;
-            Func<object> right = () =>
+            object right()
             {
                 if (!rightEvaluated)
                 {
@@ -154,7 +154,7 @@ namespace NCalc.Domain
                     rightEvaluated = true;
                 }
                 return rightValue;
-            };
+            }
 
             switch (expression.Type)
             {

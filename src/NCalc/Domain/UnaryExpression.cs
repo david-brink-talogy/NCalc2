@@ -1,16 +1,10 @@
 namespace NCalc.Domain
 {
-    public class UnaryExpression : LogicalExpression
+    public class UnaryExpression(UnaryExpressionType type, LogicalExpression expression) : LogicalExpression
     {
-        public UnaryExpression(UnaryExpressionType type, LogicalExpression expression)
-        {
-            Type = type;
-            Expression = expression;
-        }
+        public LogicalExpression Expression { get; set; } = expression;
 
-        public LogicalExpression Expression { get; set; }
-
-        public UnaryExpressionType Type { get; set; }
+        public UnaryExpressionType Type { get; set; } = type;
 
         public override void Accept(LogicalExpressionVisitor visitor)
         {
