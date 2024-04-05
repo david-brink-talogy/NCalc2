@@ -63,7 +63,7 @@ namespace NCalc
         #region Cache management
         private static bool _cacheEnabled = true;
         private static readonly ConcurrentDictionary<string, WeakReference<LogicalExpression>> _compiledExpressions =
-            new ConcurrentDictionary<string, WeakReference<LogicalExpression>>();
+            new();
 
         public static bool CacheEnabled
         {
@@ -168,10 +168,7 @@ namespace NCalc
         {
             try
             {
-                if (ParsedExpression == null)
-                {
-                    ParsedExpression = Compile(OriginalExpression, (Options & EvaluateOptions.NoCache) == EvaluateOptions.NoCache);
-                }
+                ParsedExpression ??= Compile(OriginalExpression, (Options & EvaluateOptions.NoCache) == EvaluateOptions.NoCache);
 
                 // In case HasErrors() is called multiple times for the same expression
                 return ParsedExpression != null && Error != null;
@@ -190,12 +187,6 @@ namespace NCalc
 
         public LogicalExpression ParsedExpression { get; private set; }
 
-        [Obsolete("This property will be removed in the next minor update")]
-        protected Dictionary<string, IEnumerator> ParameterEnumerators;
-        
-        [Obsolete("This property will be removed in the next minor update")]
-        protected Dictionary<string, object> ParametersBackup;
-
         private struct Void { };
 
         public struct ExpressionWithParameter
@@ -211,10 +202,7 @@ namespace NCalc
                 throw new EvaluationException(Error, ErrorException);
             }
 
-            if (ParsedExpression == null)
-            {
-                ParsedExpression = Compile(OriginalExpression, (Options & EvaluateOptions.NoCache) == EvaluateOptions.NoCache);
-            }
+            ParsedExpression ??= Compile(OriginalExpression, (Options & EvaluateOptions.NoCache) == EvaluateOptions.NoCache);
 
             LambdaExpressionVistor visitor;
             L.ParameterExpression parameter = null;
@@ -269,10 +257,7 @@ namespace NCalc
                 throw new EvaluationException(Error, ErrorException);
             }
 
-            if (ParsedExpression == null)
-            {
-                ParsedExpression = Compile(OriginalExpression, (Options & EvaluateOptions.NoCache) == EvaluateOptions.NoCache);
-            }
+            ParsedExpression ??= Compile(OriginalExpression, (Options & EvaluateOptions.NoCache) == EvaluateOptions.NoCache);
 
 
             var visitor = new EvaluationVisitor(Options, CultureInfo);
@@ -345,7 +330,7 @@ namespace NCalc
 
         public Dictionary<string, object> Parameters
         {
-            get { return _parameters ?? (_parameters = new Dictionary<string, object>()); }
+            get { return _parameters ??= []; }
             set { _parameters = value; }
         }
     }

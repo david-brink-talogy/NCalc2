@@ -30,8 +30,8 @@
 
 	<ItemGroup>
 		<None Include="ncalc.png" Pack="true" Visible="false" PackagePath="" />
-	</ItemGroup>	
-	
+	</ItemGroup>
+
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
 		<Reference Include="System" />
 		<Reference Include="Microsoft.CSharp" />

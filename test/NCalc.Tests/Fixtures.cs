@@ -11,15 +11,8 @@ using Xunit.Abstractions;
 
 namespace NCalc.Tests
 {
-    public class Fixtures
+    public class Fixtures(ITestOutputHelper output)
     {
-        private readonly ITestOutputHelper _output;
-
-        public Fixtures(ITestOutputHelper output)
-        {
-            _output = output;
-        }
-
         [Fact]
         public void ExpressionShouldEvaluate()
         {
@@ -38,7 +31,7 @@ namespace NCalc.Tests
             };
 
             foreach (string expression in expressions)
-                _output.WriteLine("{0} = {1}",
+                output.WriteLine("{0} = {1}",
                     expression,
                     Extensions.CreateExpression(expression).Evaluate());
         }
@@ -208,7 +201,7 @@ namespace NCalc.Tests
             }
             catch (EvaluationException e)
             {
-                _output.WriteLine("Error catched: " + e.Message);
+                output.WriteLine("Error catched: " + e.Message);
             }
         }
 
@@ -429,7 +422,7 @@ namespace NCalc.Tests
             }
             catch (EvaluationException e)
             {
-                _output.WriteLine("Error catched: " + e.Message);
+                output.WriteLine("Error catched: " + e.Message);
             }
         }
 
@@ -465,7 +458,7 @@ namespace NCalc.Tests
             Assert.Equal("-(True and False)", new UnaryExpression(UnaryExpressionType.Negate, new BinaryExpression(BinaryExpressionType.And, new ValueExpression(true), new ValueExpression(false))).ToString());
             Assert.Equal("!(True and False)", new UnaryExpression(UnaryExpressionType.Not, new BinaryExpression(BinaryExpressionType.And, new ValueExpression(true), new ValueExpression(false))).ToString());
 
-            Assert.Equal("test(True and False, -(True and False))", new Function(new Identifier("test"), new LogicalExpression[] { new BinaryExpression(BinaryExpressionType.And, new ValueExpression(true), new ValueExpression(false)), new UnaryExpression(UnaryExpressionType.Negate, new BinaryExpression(BinaryExpressionType.And, new ValueExpression(true), new ValueExpression(false))) }).ToString());
+            Assert.Equal("test(True and False, -(True and False))", new Function(new Identifier("test"), [new BinaryExpression(BinaryExpressionType.And, new ValueExpression(true), new ValueExpression(false)), new UnaryExpression(UnaryExpressionType.Negate, new BinaryExpression(BinaryExpressionType.And, new ValueExpression(true), new ValueExpression(false)))]).ToString());
 
             Assert.Equal("True", new ValueExpression(true).ToString());
             Assert.Equal("False", new ValueExpression(false).ToString());
@@ -507,7 +500,7 @@ namespace NCalc.Tests
             for (int cpt = 0; cpt < 20; cpt++)
             {
                 const int nbthreads = 30;
-                _exceptions = new List<Exception>();
+                _exceptions = [];
                 var threads = new Thread[nbthreads];
 
                 // Starts threads
@@ -533,13 +526,13 @@ namespace NCalc.Tests
 
                 if (_exceptions.Count > 0)
                 {
-                    _output.WriteLine(_exceptions[0].StackTrace);
+                    output.WriteLine(_exceptions[0].StackTrace);
                     throw _exceptions[0];
                 }
             }
         }
 
-        private List<Exception> _exceptions = new();
+        private List<Exception> _exceptions = [];
 
         private void WorkerThread()
         {

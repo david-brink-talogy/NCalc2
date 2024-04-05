@@ -165,6 +165,7 @@ indent_size = 2
 
 [*.{csproj,vbproj,proj,nativeproj,locproj}]
 charset = utf-8
+dotnet_diagnostic.CA1016.severity = none
 
 # Xml build files
 [*.builds]
